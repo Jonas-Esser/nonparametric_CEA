@@ -1,27 +1,14 @@
-library(bayesplot)
-library(dplyr)
 library(ggplot2)
-library(systemfit)
 library(gridExtra)
-library(BART)
-library(skewBART)
-library(surbayes)
 library(subart)
-library(ggdensity)
 
 data <- read.csv("c:\\Users\\jes238\\OneDrive - Vrije Universiteit Amsterdam\\Documents\\suBART_tutorial\\data_example.csv")
-data <- data[,-1]
-data <- rename(data, 
-               c = C,
-               q = Q,
-               t = trt)
+X_train <- data[,c("t", "age", "gender", "education")]
 
-X_train <- select(data, -one_of(c("q", "c")))
-
-n_mcmc <- 4000
-ps_fit <- subart(x_train = select(X_train, !c("t")),
+n_mcmc <- 100
+ps_fit <- subart(x_train = X_train[,c("age", "gender", "education")],
                  y_mat = as.matrix(X_train$t),
-                 x_test = select(X_train, !c("t")),
+                 x_test = X_train[,c("age", "gender", "education")],
                  n_tree = 100,
                  n_mcmc = 2*n_mcmc,
                  n_burn = n_mcmc,
@@ -34,12 +21,7 @@ X_test <- rbind(X_train, X_train)
 X_test$t <- c(rep(0, nrow(X_train)), rep(1, nrow(X_train)))
 X_test_ps <- rbind(X_train_ps, X_train_ps)
 X_test_ps$t <- c(rep(0, nrow(X_train_ps)), rep(1, nrow(X_train_ps)))
-Y_train <- select(data,
-                  "c",
-                  "q"
-)
-
-# 
+Y_train <- data[,c("c", "q")]
 
 # Fitting the suBART model
 
