@@ -5,7 +5,7 @@ library(subart)
 data <- read.csv("c:\\Users\\jes238\\OneDrive - Vrije Universiteit Amsterdam\\Documents\\suBART_tutorial\\data_example.csv")
 X_train <- data[,c("t", "age", "gender", "education")]
 
-n_mcmc <- 100
+n_mcmc <- 2000
 ps_fit <- subart(x_train = X_train[,c("age", "gender", "education")],
                  y_mat = as.matrix(X_train$t),
                  x_test = X_train[,c("age", "gender", "education")],
