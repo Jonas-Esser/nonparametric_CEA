@@ -1,46 +1,36 @@
 library(ggplot2)
 library(gridExtra)
-library(subart)
+
 
 data <- read.csv("c:\\Users\\jes238\\OneDrive - Vrije Universiteit Amsterdam\\Documents\\suBART_tutorial\\data_example.csv")
-X_train <- data[,c("t", "age", "gender", "education")]
+X <- data[,c("t", "age", "sex", "education")]
+Y <- data[,c("c", "q")]
 
+library(subart)
 n_mcmc <- 2000
-ps_fit <- subart(x_train = X_train[,c("age", "gender", "education")],
-                 y_mat = as.matrix(X_train$t),
-                 x_test = X_train[,c("age", "gender", "education")],
+ps_fit <- subart(x_train = X[,c("age", "sex", "education")],
+                 y_mat = as.matrix(X$t),
+                 x_test = X[,c("age", "sex", "education")],
                  n_tree = 100,
                  n_mcmc = 2*n_mcmc,
                  n_burn = n_mcmc,
                  varimportance = TRUE)
 
-X_train_ps <- X_train
-X_train_ps$ps <- apply(pnorm(ps_fit$y_hat_test), 1, mean)
-
-X_test <- rbind(X_train, X_train)
-X_test$t <- c(rep(0, nrow(X_train)), rep(1, nrow(X_train)))
-X_test_ps <- rbind(X_train_ps, X_train_ps)
-X_test_ps$t <- c(rep(0, nrow(X_train_ps)), rep(1, nrow(X_train_ps)))
-Y_train <- data[,c("c", "q")]
+X_ps <- X
+X_ps$ps <- apply(pnorm(ps_fit$y_hat_test), 1, mean)
+X_test <- rbind(X_ps, X_ps)
+X_test$t <- c(rep(0, nrow(X)), rep(1, nrow(X)))
 
 # Fitting the suBART model
 
-suBART_ps_fit <- subart(x_train = X_train_ps,
-                        y_mat = as.matrix(Y_train),
-                        x_test = X_test_ps,
+suBART_ps_fit <- subart(x_train = X_ps,
+                        y_mat = as.matrix(Y),
+                        x_test = X_test,
                         n_tree = 100,
                         n_mcmc = 2*n_mcmc,
                         n_burn = n_mcmc,
                         varimportance = FALSE)
 
-suBART_ps_fit$ATE <- matrix(NA, nrow = n_mcmc, ncol = 2)
-for (i in 1:n_mcmc){
-  suBART_ps_fit$ATE[i,] <- c(
-    mean(suBART_ps_fit$y_hat_test[X_test_ps$t == 1,1,i]) - mean(suBART_ps_fit$y_hat_test[X_test_ps$t == 0,1,i]),
-    mean(suBART_ps_fit$y_hat_test[X_test_ps$t == 1,2,i]) - mean(suBART_ps_fit$y_hat_test[X_test_ps$t == 0,2,i])
-    
-  )
-}
 
 post_suBART_ps <- data.frame(
   Delta_c = suBART_ps_fit$ATE[,1],
@@ -52,8 +42,8 @@ post_suBART_ps <- data.frame(
 suBART_ps_fit$ATE <- matrix(NA, nrow = n_mcmc, ncol = 2)
 for (i in 1:n_mcmc){
   suBART_ps_fit$ATE[i,] <- c(
-    mean(suBART_ps_fit$y_hat_test[X_test_ps$t == 1,1,i]) - mean(suBART_ps_fit$y_hat_test[X_test_ps$t == 0,1,i]),
-    mean(suBART_ps_fit$y_hat_test[X_test_ps$t == 1,2,i]) - mean(suBART_ps_fit$y_hat_test[X_test_ps$t == 0,2,i])
+    mean(suBART_ps_fit$y_hat_test[X_test$t == 1,1,i]) - mean(suBART_ps_fit$y_hat_test[X_test$t == 0,1,i]),
+    mean(suBART_ps_fit$y_hat_test[X_test$t == 1,2,i]) - mean(suBART_ps_fit$y_hat_test[X_test$t == 0,2,i])
     
   )
 }
