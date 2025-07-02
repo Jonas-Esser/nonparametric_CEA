@@ -1,15 +1,15 @@
 data <- read.csv("c:\\Users\\jes238\\OneDrive - Vrije Universiteit Amsterdam\\Documents\\suBART_tutorial\\data_example.csv")
 
 # data preparation ####
-X <- data[,c("t", "age", "gender", "education")]
+X <- data[,c("t", "age", "sex", "education")]
 Y <- data[,c("c", "q")]
 
 # estimation of propensity scores ####
 library(subart)
 
-ps_fit <- subart(x_train = X[,c("age", "gender", "education")],
+ps_fit <- subart(x_train = X[,c("age", "sex", "education")],
                  y_mat = as.matrix(X$t),
-                 x_test = X[,c("age", "gender", "education")],
+                 x_test = X[,c("age", "sex", "education")],
                  n_tree = 100,
                  n_mcmc = 3000,
                  n_burn = 1000,
@@ -69,7 +69,7 @@ CEplane <- ggplot(MCMC_sample) +
   geom_hline(yintercept = 0, linetype = "dashed") +
   labs(x = expression(Delta[q]), y = expression(Delta[c])) +
   scale_x_continuous(limits = c(-0.05, 0.15)) +
-  scale_y_continuous(limits = c(0, 1000)) +
+  scale_y_continuous(limits = c(-100, 1000)) +
   theme_classic() +
   theme(text = element_text(size = 14)) 
 
