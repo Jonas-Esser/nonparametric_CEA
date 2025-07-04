@@ -1,4 +1,8 @@
-data <- read.csv("c:\\Users\\jes238\\OneDrive - Vrije Universiteit Amsterdam\\Documents\\suBART_tutorial\\data_example.csv")
+data <- read.csv("c:\\Users\\jes238\\OneDrive - Vrije Universiteit Amsterdam\\Documents\\suBART_tutorial\\data_example_complete.csv")
+
+# data formatting 
+data$education <- as.factor(data$education)
+data[data == -99] <- NA
 
 # data preparation ####
 X <- data[,c("t", "age", "sex", "education")]
